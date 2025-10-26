@@ -1,0 +1,20 @@
+CREATE TABLE bookings(
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    event_id INt NOT NULL,
+    tickets INT NOT NULL CHECK ( tickets > 0 AND tickets <=20 ),
+    total_price INT NOT NULL CHECK ( total_price >=0 ),
+    status VARCHAR DEFAULT 'confirmed',
+    created_at TIMESTAMP WITH TIME ZONE  DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE  DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE event(
+    id INT PRIMARY KEY,
+    title VARCHAR NOT NULL,
+    date TIMESTAMP WITH TIME ZONE NOT NULL,
+    total_tickets INT NOT NULL,
+    available_tickets INT NOT NULL,
+    price INT NOT NULL,
+    last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+)
