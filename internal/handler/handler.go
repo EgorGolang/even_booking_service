@@ -4,10 +4,11 @@ import (
 	"event_booking_service/internal/models"
 	"event_booking_service/internal/service"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -24,11 +25,12 @@ func NewHandler(service *service.Service) *Handler {
 func (h *Handler) CreateBooking(c *gin.Context) {
 	var req models.CreateBookingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		fmt.Printf(err)
-		c.JSON(http.StatusBadRequest, nil)
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{
+			Error: fmt.Sprintf("binding json error: %v", err),
+		})
 		return
 	}
-	booking, err := h.service.CreateBooking(c.Requset.Context(), req)
+	booking, err := h.service.CreateBooking(req)
 	if err != nil {
 		errorMsg := err.Error()
 		statusCode := http.StatusUnprocessableEntity
@@ -89,7 +91,7 @@ func (h *Handler) GetUserBooking(c *gin.Context) {
 	}
 	bookings, err := h.service.GetUserBookings(c.Request.Context(), userID)
 	if err != nil {
-		fmt.Printf("userID is invalid\n", err)
+		fmt.Printf("userID is invalid\n %s", err)
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Error: "userID is invalid",
 		})
