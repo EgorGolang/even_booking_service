@@ -43,6 +43,9 @@ func (r *EventService) GetEvent(ctx context.Context, id int) (*models.Booking, e
 func (c *EventService) ReserveBooking(eventID, tickets int) error {
 	requestBody := map[string]int{"tickets": tickets}
 	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return fmt.Errorf("failed json marshaling: %v", err)
+	}
 	resp, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%d/reserve", c.baseURL, eventID), bytes.NewBuffer(jsonData))
 	if err != nil {
 		return err
@@ -54,18 +57,21 @@ func (c *EventService) ReserveBooking(eventID, tickets int) error {
 func (c *EventService) ReleaseTickets(eventID, tickets int) error {
 	requestBody := map[string]int{"tickets": tickets}
 	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
 	req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%d/reserve", c.baseURL, eventID), bytes.NewBuffer(jsonData))
 	if err != nil {
-		return fmt.Errorf("Failed to release tickets: %v", err)
+		return fmt.Errorf("failed json marshaling: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := c.client.Do(req)
 	if err != nil {
-		return fmt.Errorf("Failed to release tickets: %v", err)
+		return fmt.Errorf("failed to release tickets: %v", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("Failed to release tickets: %s", resp.StatusCode)
+		return fmt.Errorf("failed to release tickets: %d", resp.StatusCode)
 	}
 	return nil
 }
